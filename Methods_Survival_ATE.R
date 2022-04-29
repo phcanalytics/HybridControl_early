@@ -30,9 +30,9 @@ SIPTW.aft=function(X, nT, DA, A, N, Index_T_HC0, Index_T_HC1, ATT.surv){
       X=X_gen(nT,nC,nHC0,nHC1)
       Y=Gen_Y(N, DA, beta[,j], X, nT)
       X=X[,-c(11:13)]
-      weights_HC0=predict(glm(DA[Index_T_HC0,5] ~ X[Index_T_HC0,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
-      weights_HC1=predict(glm(DA[Index_T_HC1,5] ~ X[Index_T_HC1,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
-      weights=as.vector(c(rep(1,nT+nC),weights_HC0/(1-weights_HC0),weights_HC1/(1-weights_HC1)))
+      ps_HC0=predict(glm(DA[Index_T_HC0,5] ~ X[Index_T_HC0,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
+      ps_HC1=predict(glm(DA[Index_T_HC1,5] ~ X[Index_T_HC1,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
+      weights=as.vector(c(rep(1,nT+nC),ps_HC0/(1-ps_HC0),ps_HC1/(1-ps_HC1)))
       M=survreg(formula = Y ~ DA[,5], data=data.frame(Y,A),weights = weights, dist="weibull");betahat_T[i]=-M$coef[2]/M$scale}    
     Bias=mean(betahat_T)-ATT.surv[j]
     Variance=sum((betahat_T-mean(betahat_T))^2)/(Nsim-1)
@@ -68,8 +68,8 @@ JIPTW2.aft=function(X, nT, DA, A, N, Index_T_HC0, Index_T_HC1, ATT.surv, D, DD, 
       X=X_gen(nT,nC,nHC0,nHC1)
       Y=Gen_Y(N, DA, beta[,j], X, nT)
       X=X[,-c(11:13)]
-      weights_HC01=predict(glm(c(rep(1,nT),rep(0,nHC0+nHC1)) ~ X[Index_noC,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
-      weights=as.vector(c(rep(1,nT+nC),weights_HC01/(1-weights_HC01))) 
+      ps_HC01=predict(glm(c(rep(1,nT),rep(0,nHC0+nHC1)) ~ X[Index_noC,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
+      weights=as.vector(c(rep(1,nT+nC),ps_HC01/(1-ps_HC01))) 
       M=survreg(formula = Y ~ DA[,5]+DA[,3]+DA[,4], data=data.frame(Y,A),weights = weights, dist="weibull");betahat_T[i]=-M$coef[2]/M$scale}   
     Bias=mean(betahat_T)-ATT.surv[j]
     Variance=sum((betahat_T-mean(betahat_T))^2)/(Nsim-1)
@@ -108,9 +108,9 @@ SIPTW=function(X, nT, DA, A, N, Index_T_HC0, Index_T_HC1, ATT.surv){
       X=X_gen(nT,nC,nHC0,nHC1)
       Y=Gen_Y(N, DA, beta[,j], X, nT)
       X=X[,-c(11:13)]
-      weights_HC0=predict(glm(DA[Index_T_HC0,5] ~ X[Index_T_HC0,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
-      weights_HC1=predict(glm(DA[Index_T_HC1,5] ~ X[Index_T_HC1,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
-      weights=as.vector(c(rep(1,nT+nC),weights_HC0/(1-weights_HC0),weights_HC1/(1-weights_HC1)))
+      ps_HC0=predict(glm(DA[Index_T_HC0,5] ~ X[Index_T_HC0,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
+      ps_HC1=predict(glm(DA[Index_T_HC1,5] ~ X[Index_T_HC1,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
+      weights=as.vector(c(rep(1,nT+nC),ps_HC0/(1-ps_HC0),ps_HC1/(1-ps_HC1)))
       betahat_T[i]=summary(coxph(formula = Y ~ DA[,5], weights = weights, robust = TRUE))$coef[1]}  
     Bias=mean(betahat_T)-ATT.surv[j]
     Variance=sum((betahat_T-mean(betahat_T))^2)/(Nsim-1)
@@ -145,8 +145,8 @@ JIPTW2=function(X, nT, DA, A, N, Index_T_HC0, Index_T_HC1, ATT.surv, D, DD, Inde
       X=X_gen(nT,nC,nHC0,nHC1)
       Y=Gen_Y(N, DA, beta[,j], X, nT)
       X=X[,-c(11:13)]
-      weights_HC01=predict(glm(c(rep(1,nT),rep(0,nHC0+nHC1)) ~ X[Index_noC,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
-      weights=as.vector(c(rep(1,nT+nC),weights_HC01/(1-weights_HC01))) 
+      ps_HC01=predict(glm(c(rep(1,nT),rep(0,nHC0+nHC1)) ~ X[Index_noC,],family=binomial(link = "logit")),type="response")[-c(1:nT)]
+      weights=as.vector(c(rep(1,nT+nC),ps_HC01/(1-ps_HC01))) 
       betahat_T[i]=summary(coxph(formula = Y ~ DA[,5]+DA[,3]+DA[,4], weights = weights, robust = TRUE))$coef[1]}  
     Bias=mean(betahat_T)-ATT.surv[j]
     Variance=sum((betahat_T-mean(betahat_T))^2)/(Nsim-1)
